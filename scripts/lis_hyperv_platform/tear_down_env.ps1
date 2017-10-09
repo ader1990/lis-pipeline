@@ -8,7 +8,7 @@ $scriptPath1 = (get-item $scriptPath ).parent.FullName
 
 function Main {
     $configDrivePath = (Get-VMDvdDrive $InstanceName).Path
-    $hardDrivePath = (Get-VMHardDiskDrive LavaInstance94).Path
+    $hardDrivePath = (Get-VMHardDiskDrive $InstanceName).Path
     $basePath = Split-Path $configDrivePath
     $backend = [HypervBackend]::new(@("localhost"))
     $instance = [HypervInstance]::new($backend, $InstanceName, $VHDPath)

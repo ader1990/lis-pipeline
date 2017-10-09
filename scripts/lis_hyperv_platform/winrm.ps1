@@ -10,7 +10,9 @@ param(
     [Int] $VMCheckTimeout = 200
    )
 
-$command = ("& C:\\\\Users\\\\avlad\\\\work\\projects\\\\lis-pipeline\\\\scripts\\\\lis_hyperv_platform\\\\\\main.ps1 " `
+$scriptPath = Split-Path -Parent $MyInvocation.MyCommand.Definition
+
+$command = ("& $scriptPath\\main.ps1 " `
            + "-SharedStoragePath $SharedStoragePath " `
            + "-VHDPath $VHDPath " `
            + "-ConfigDrivePath $ConfigDrivePath -UserDataPath $UserdataPath -KernelURL $KernelURL -MkIsoFS $MkIsoFS " `

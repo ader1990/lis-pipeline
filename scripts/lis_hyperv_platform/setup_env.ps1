@@ -7,9 +7,11 @@ param (
         "http://URL/TO/linux-image.deb",
         "http://URL/TO/hyperv-daemons.deb"),
     [String] $InstanceName = "Instance1",
-    [String] $MkIsoFS = "C:\path\to\mkisofs.exe"
+    [String] $MkIsoFS = "C:\path\to\mkisofs.exe",
+    [String] $LavaToolsDisk = "C:\path\to\mkisofs.exe"
 )
 
+$ErrorActionPreference = "Stop"
 $scriptPath = Split-Path -Parent $MyInvocation.MyCommand.Definition
 
 $scriptPath1 = (get-item $scriptPath ).parent.FullName
@@ -26,6 +28,7 @@ function Main {
     $instance.Cleanup()
     $instance.CreateInstance()
     $instance.AttachVMDvdDrive("$ConfigDrivePath.iso")
+    Get-VM $InstanceName | Add-VMHardDiskDrive -ControllerType IDE -ControllerNumber 1 -Path $LavaToolsDisk
     $instance.StartInstance()
 }
 try {
