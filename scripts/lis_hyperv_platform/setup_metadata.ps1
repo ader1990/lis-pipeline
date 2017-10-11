@@ -19,7 +19,7 @@ function Make-ISO {
         [String] $OutputPath
     )
 
-    & $MkisofsPath -V config-2 -r -R -J -l -L -o $OutputPath $TargetPath
+    & "$MkIsoFSPath" -o $OutputPath -ldots -allow-lowercase -allow-multidot -quiet -J -r -V "config-2" $TargetPath
     if ($lastExitcode) {
         throw
     }
