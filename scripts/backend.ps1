@@ -851,9 +851,12 @@ class HypervBackend : Backend {
             param($InstanceName)
             $ips = (Get-VMNetworkAdapter -VMName $InstanceName).IPaddresses
             foreach ($ip in $ips) {
-                $castIp = [ipaddress]$ip
-                if ($castIp -and ($castIp.AddressFamily -eq "InterNetwork") -and (!$castIp.$ip1.IsIPv6LinkLocal)) {
-                    return $ip
+                try {
+                    $castIp = [ipaddress]$ip
+                    if ($castIp -and ($castIp.AddressFamily -eq "InterNetwork") -and (!$castIp.$ip1.IsIPv6LinkLocal)) {
+                        return $ip
+                    }
+                } catch {
                 }
             }
             return $null
