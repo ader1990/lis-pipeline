@@ -57,7 +57,7 @@ function Main {
     $configDrive.ChangeUserData("$UserdataPath")
     $configDrive.SaveToNewConfigDrive("$ConfigDrivePath-tmp")
 
-    Make-ISO $MkIsoFS "$ConfigDrivePath-tmp" "$ConfigDrivePath.iso"
+    Make-ISO $MkIsoFS "$ConfigDrivePath-tmp" "${ConfigDrivePath}-new.iso"
     Remove-Item -Force -Recurse -Path "$ConfigDrivePath-tmp"
     Remove-Item -Force "$UserdataPath"
 }
