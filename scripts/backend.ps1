@@ -1,5 +1,6 @@
 ##### Install PowerShell 5 using https://github.com/DarwinJS/ChocoPackages/blob/master/PowerShell/v5.1/tools/ChocolateyInstall.ps1#L107-L173
 ##### For 2008 R2, run the .ps1 from: https://download.microsoft.com/download/6/F/5/6F5FF66C-6775-42B0-86C4-47D41F2DA187/Win7AndW2K8R2-KB3191566-x64.zip
+Import-Module "Hyper-V" | Out-Null
 
 class Instance {
     [Backend] $Backend
@@ -720,7 +721,7 @@ class HypervBackend : Backend {
             param($InstanceName, $VHDPath)
 
             New-VM -Name $InstanceName -VHDPath $VHDPath `
-                   -MemoryStartupBytes 3500MB `
+                   -MemoryStartupBytes 2048MB `
                    -Generation 1 `
                    -SwitchName "External"
             Set-VM -Name $InstanceName `
@@ -848,7 +849,14 @@ class HypervBackend : Backend {
         # NOTE(papagalu):LIS drivers, LIS KVP daemon should be installed on the VM
         $scriptBlock = {
             param($InstanceName)
-            (Get-VMNetworkAdapter -VMName $InstanceName).IPaddresses[0]
+            $ips = (Get-VMNetworkAdapter -VMName $InstanceName).IPaddresses
+            foreach ($ip in $ips) {
+                $castIp = [ipaddress]$ip
+                if ($castIp -and ($castIp.AddressFamily -eq "InterNetwork") -and (!$castIp.$ip1.IsIPv6LinkLocal)) {
+                    return $ip
+                }
+            }
+            return $null
         }
 
         $params = @{
