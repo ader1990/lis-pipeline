@@ -27,7 +27,8 @@ function Main {
     }
     $instance.Cleanup()
     $instance.CreateInstance()
-    $instance.AttachVMDvdDrive("$ConfigDrivePath.iso")
+    mv -force "${ConfigDrivePath}-new.iso" "${ConfigDrivePath}-${InstanceName}.iso"
+    $instance.AttachVMDvdDrive("${ConfigDrivePath}-${InstanceName}.iso")
     Get-VM $InstanceName | Add-VMHardDiskDrive -ControllerType IDE -ControllerNumber 1 -Path $LavaToolsDisk
     $instance.StartInstance()
 }
