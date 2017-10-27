@@ -1,0 +1,64 @@
+---
+name: lisa-test
+
+resource_types:
+  - name: file-url
+    type: docker-image
+    source:
+      repository: pivotalservices/concourse-curl-resource
+
+resources:
+  - name: lis-test
+    type: git
+    source:
+      uri: https://github.com/LIS/lis-test.git
+  - name: lis-pipeline
+    type: git
+    source:
+      uri: https://github.com/ader1990/lis-pipeline.git
+      branch: concourse_pipeline      
+  - name: putty-binaries
+    type: file-url
+    source:
+      url: https://the.earth.li/~sgtatham/putty/0.70/w32/putty.zip
+      filename: putty.zip
+
+jobs:
+  - name: LisaTest
+    plan:
+      - aggregate:
+        - get: lis-test
+        - get: lis-pipeline
+        - get: putty-binaries
+      - task: unzip_putty_binaries
+        privileged: true
+        config:
+          platform: windows
+          inputs:
+            - name: lis-test
+            - name: lis-pipeline
+            - name: putty-binaries
+          outputs:
+            - name: lis-test-with-binaries
+          run:
+            path: powershell
+            args: ["-Command", "cp -recurse -force .\\lis-test .\\lis-test-with-binaries; & .\\lis-pipeline\\scripts\\concourse_pipeline\\lisa\\unzip.ps1 -From .\\putty-binaries\\putty.zip -To .\\lis-test-with-binaries\\lis-test\\WS2012R2\\lisa\\bin"]
+      - task: create_hyperv_vm
+        privileged: true
+        config:
+          platform: windows
+          inputs:
+            - name: lis-pipeline
+          run:
+            path: powershell
+            args: ["ls"]
+      - task: execute_lisa_test
+        privileged: true
+        config:
+          platform: windows
+          inputs:
+            - name: lis-test-with-binaries
+            - name: lis-pipeline
+          run:
+            path: powershell
+            args: ["-Command", "& .\\lis-pipeline\\scripts\\run_hyperv_bvts.ps1 -LogDir C:\\lis-logs -LisaPath .\\lis-test-with-binaries\\lis-test\\WS2012R2\\lisa -TestXml C:\\concourse\\bvt_suite.xml -VmNames C:\\concourse\\vmnames.txt -VMCheckTimeout 200"]

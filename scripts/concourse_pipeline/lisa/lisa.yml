@@ -1,0 +1,8 @@
+platform: windows
+
+inputs:
+  - name: lis-test
+  - name: lis-pipeline
+run:
+  path: powershell
+  args: ["ls"]

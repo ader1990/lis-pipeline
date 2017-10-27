@@ -39,19 +39,26 @@ function Get-StartLISAScript () {
             $xmlContents.save($newXmlPath)
             pushd $LisaPath
             $process = Start-Process powershell -ArgumentList @("$LisaPath\lisa.ps1", "run", $newXmlPath, "-cliLogDir", $LogDir) `
-                        -PassThru -RedirectStandardOutput "$vmName-output.txt" -RedirectStandardError "$vmName-error.txt" -NoNewWindow
+                        -PassThru -RedirectStandardOutput "$LogDir\$vmName-output.txt" -RedirectStandardError "$LogDir\$vmName-error.txt" -NoNewWindow
             # Ugly hack in order to still have access to the process exit code.
             # Without caching the process handle, the exit code wil always be $null if
             # Start-Process is used without the -Wait parameter.
             $handle = $process.Handle
+            $lastLines = 0
+            $vmLogs = "$LogDir\$VMName*\ica.log"
             while ($true) {
-                if (Test-Path "$LogDir\$VMName*\ica.log") {
-                    Get-Content -Encoding Ascii -Raw "$LogDir\$VMName*\ica.log" | Write-Output
-                }
-                if (Test-Path "$LogDir\bvt_suite*\ica.log") {
-                    Get-Content -Encoding Ascii -Raw "$LogDir\bvt_suite*\ica.log" | Write-Output
+                if (Test-Path $vmLogs) {
+                    $icaLogContent = Get-Content -Encoding Ascii -Raw $vmLogs
+                    $linesTmp = ( $icaLogContent | Measure-Object -Line).Lines
+                    if ($linesTmp -ne $lastLines) {
+                        Get-Content -Encoding Ascii $vmLogs -Tail ($linesTmp - $lastLines) | Write-Output
+                        $lastLines = $linesTmp
+                    }
                 }
                 if ($process.HasExited) {
+                    Write-Output ""
+                    Write-Output "LISA test output:"
+                    Get-Content -Encoding Ascii -Raw "$LogDir\$VMName*\Report-BVT.xml" | Write-Output
                     break
                 }
                 Start-Sleep 1
@@ -93,7 +100,8 @@ function Main () {
     if (-not (Test-Path $LisaPath)) {
         Write-Host "Invalid path $LisaPath for lisa folder." -ForegroundColor Red
         exit 1
-    } 
+    }
+    $LisaPath = (Resolve-Path $LisaPath).Path 
     if (Test-Path $VMNames) {
         $vmNames = Get-Content $VMNames
     } else {
