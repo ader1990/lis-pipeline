@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<test-results xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="nunit_schema_2.5.xsd" name="Pester" total="12" errors="0" failures="2" not-run="0" inconclusive="0" ignored="0" skipped="0" invalid="0" date="2017-11-16" time="20:34:23">
+  <environment user="avlad" machine-name="AVLADUTEST" cwd="C:\Users\avlad\work\projects\imaging-tools\windows-openstack-imaging-tools" user-domain="AVLADUTEST" platform="Microsoft Windows 10 Pro|C:\WINDOWS|\Device\Harddisk1\Partition4" nunit-version="2.5.8.0" os-version="10.0.15063" clr-version="4.0.30319.42000" />
+  <culture-info current-culture="en-US" current-uiculture="en-US" />
+  <test-suite type="Powershell" name="Pester" executed="True" result="Failure" success="False" time="2.6317" asserts="0">
+    <results>
+      <test-suite type="TestFixture" name="Test New-WindowsCloudImage" executed="True" result="Failure" success="False" time="0.7237" asserts="0" description="Test New-WindowsCloudImage">
+        <results>
+          <test-case description="Should create a windows image" name="Test New-WindowsCloudImage.Should create a windows image" time="0.5545" asserts="0" success="False" result="Failure" executed="True">
+            <failure>
+              <message>The term 'fail' is not recognized as the name of a cmdlet, function, script file, or operable program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.</message>
+              <stack-trace>at line: 113 in C:\Users\avlad\work\projects\imaging-tools\windows-openstack-imaging-tools\Tests\WinImageBuilder.Tests.ps1</stack-trace>
+            </failure>
+          </test-case>
+          <test-case description="should run all mocked commands" name="Test New-WindowsCloudImage.should run all mocked commands" time="0.1692" asserts="0" success="False" result="Failure" executed="True">
+            <failure>
+              <message>
+ Expected Create-ImageVirtualDisk in module WinImageBuilder to be called with $True</message>
+              <stack-trace>at line: 434 in C:\Program Files\WindowsPowerShell\Modules\Pester\3.4.0\Functions\Mock.ps1</stack-trace>
+            </failure>
+          </test-case>
+        </results>
+      </test-suite>
+      <test-suite type="TestFixture" name="Test Get-WimFileImagesInfo" executed="True" result="Success" success="True" time="0.0758" asserts="0" description="Test Get-WimFileImagesInfo">
+        <results>
+          <test-case description="Should return fake images" name="Test Get-WimFileImagesInfo.Should return fake images" time="0.0758" asserts="0" success="True" result="Success" executed="True" />
+        </results>
+      </test-suite>
+      <test-suite type="TestFixture" name="Test Resize-VHDImage" executed="True" result="Success" success="True" time="0.2226" asserts="0" description="Test Resize-VHDImage">
+        <results>
+          <test-case description="Should resize a vhd image" name="Test Resize-VHDImage.Should resize a vhd image" time="0.1948" asserts="0" success="True" result="Success" executed="True" />
+          <test-case description="should run all mocked commands" name="Test Resize-VHDImage.should run all mocked commands" time="0.0278" asserts="0" success="True" result="Success" executed="True" />
+        </results>
+      </test-suite>
+      <test-suite type="TestFixture" name="Test New-WindowsOnlineImage" executed="True" result="Success" success="True" time="1.2773" asserts="0" description="Test New-WindowsOnlineImage">
+        <results>
+          <test-case description="Should create an online image" name="Test New-WindowsOnlineImage.Should create an online image" time="1.2521" asserts="0" success="True" result="Success" executed="True" />
+          <test-case description="should run all mocked commands" name="Test New-WindowsOnlineImage.should run all mocked commands" time="0.0252" asserts="0" success="True" result="Success" executed="True" />
+        </results>
+      </test-suite>
+      <test-suite type="TestFixture" name="Test Get-WindowsUpdate" executed="True" result="Success" success="True" time="0.1201" asserts="0" description="Test Get-WindowsUpdate">
+        <results>
+          <test-case description="Should return fake updates" name="Test Get-WindowsUpdate.Should return fake updates" time="0.1201" asserts="0" success="True" result="Success" executed="True" />
+        </results>
+      </test-suite>
+      <test-suite type="TestFixture" name="Test Get-RebootRequired" executed="True" result="Success" success="True" time="0.2122" asserts="0" description="Test Get-RebootRequired">
+        <results>
+          <test-case description="Should return true" name="Test Get-RebootRequired.Should return true" time="0.0683" asserts="0" success="True" result="Success" executed="True" />
+          <test-case description="Should verify all methods" name="Test Get-RebootRequired.Should verify all methods" time="0.0423" asserts="0" success="True" result="Success" executed="True" />
+          <test-case description="Should return false" name="Test Get-RebootRequired.Should return false" time="0.0676" asserts="0" success="True" result="Success" executed="True" />
+          <test-case description="Should verify all methods" name="Test Get-RebootRequired.Should verify all methods" time="0.0341" asserts="0" success="True" result="Success" executed="True" />
+        </results>
+      </test-suite>
+    </results>
+  </test-suite>
+</test-results>
