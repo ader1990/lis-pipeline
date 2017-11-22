@@ -131,9 +131,9 @@ pipeline {
     }
   }
   environment {
-    KERNEL_GIT_BRANCH = 'stable'
+    KERNEL_GIT_BRANCH = 'unstable'
     KERNEL_ARTIFACTS_PATH = 'kernel-artifacts'
-    THREAD_NUMBER = 'x2'
+    THREAD_NUMBER = 'x1'
     UBUNTU_VERSION = '16'
     BUILD_PATH = '/mnt/tmp/kernel-build-folder'
     KERNEL_CONFIG = './Microsoft/config-azure'
