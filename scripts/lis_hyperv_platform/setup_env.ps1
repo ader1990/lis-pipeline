@@ -2,13 +2,9 @@ param (
     [String] $JobPath = "C:\path\to\job",
     [String] $VHDPath = "C:\path\to\example.vhdx",
     [String] $UserdataPath = "C:\path\to\userdata.sh",
-    [String[]] $KernelURL = @(
-        "http://URL/TO/linux-headers.deb",
-        "http://URL/TO/linux-image.deb",
-        "http://URL/TO/hyperv-daemons.deb"),
+    [String] $KernelPath = "",
     [String] $InstanceName = "Instance1",
     [String] $MkIsoFS = "C:\path\to\mkisofs.exe",
-    [String] $LavaToolsDisk = "C:\path\to\tools"
 )
 
 
@@ -32,7 +28,7 @@ function Main {
 
     $instance.CreateInstance()
     $instance.AttachVMDvdDrive("$JobPath/configdrive.iso")
-    $instance.AddVMDisk($LavaToolsDisk)
+    $instance.AttachVMDVDDrive("$JobPath/kernel.iso")
     $instance.StartInstance()
 }
 

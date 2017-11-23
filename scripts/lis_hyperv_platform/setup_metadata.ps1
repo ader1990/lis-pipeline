@@ -1,10 +1,7 @@
 param(
     [String] $JobPath = 'C:\var\lava\tmp\1',
     [String] $UserdataPath = "C:\path\to\userdata.sh",
-    [String[]] $KernelURL = @(
-        "http://URL/TO/linux-headers.deb",
-        "http://URL/TO/linux-image.deb",
-        "http://URL/TO/hyperv-daemons.deb"),
+    [String] $KernelPath = "",
     [String] $MkIsoFS = "C:\path\to\mkisofs.exe"
 )
 
@@ -32,34 +29,10 @@ function Make-ISO {
     }
 }
 
-function Update-URL {
-    param(
-        [String] $UserdataPath,
-        [String] $URL
-    )
-        (Get-Content $UserdataPath).replace("MagicURL", $URL) `
-            | Set-Content $UserdataPath
-}
-
-function Preserve-Item {
-    param (
-        [String] $Path
-    )
-
-    Copy-Item -Path $Path -Destination "$Path-tmp"
-    return "$Path-tmp"
-}
-
-
 function Main {
     Assert-PathExists $JobPath
     Assert-PathExists $UserdataPath
-    foreach ($url in $KernelUrl) {
-        Assert-URLExists $url
-    }
-    
-    $UserdataPath = Preserve-Item $UserdataPath
-    Update-URL $UserdataPath $KernelURL
+    Assert-PathExists $KernelPath
 
     Write-Host "Generating SSH keys."
     & 'ssh-keygen.exe' -t rsa -f "$JobPath\$InstanceName-id-rsa" -q -N "''" -C "debian"
@@ -78,8 +51,11 @@ function Main {
     Make-ISO $MkIsoFS "$scriptPath/ConfigDrive-tmp" "$JobPath\configdrive.iso"
     Write-Host "Finished Creating Configdrive"
 
+    Write-Host "Creating Kernel.iso"
+    Make-ISO $MkIsoFS $KernelPath "$JobPath\kernel.iso" 
+    Write-Host "Finished Creating Kernel.iso"
+
     Remove-Item -Force -Recurse -Path "$scriptPath/ConfigDrive-tmp"
-    Remove-Item -Force $UserdataPath
 }
 
 Main
