@@ -1,8 +1,7 @@
 param(
     [String] $JobPath = 'C:\var\lava\tmp\1',
-    [String] $UserdataPath = "C:\path\to\userdata.sh",
     [String] $KernelPath = "",
-    [String] $MkIsoFS = "C:\path\to\mkisofs.exe"
+    [String] $IdRSA = "C:\path\to\mkisofs.exe"
 )
 
 $scriptPath = Split-Path -Parent $MyInvocation.MyCommand.Definition
@@ -20,7 +19,7 @@ function Make-ISO {
         [String] $OutputPath
     )
     try {
-        & $MkIsoFSPath -o $OutputPath -ldots -allow-lowercase -allow-multidot -quiet -J -r -V "config-2" $TargetPath
+        & 'mkisofs.exe' -o $OutputPath -ldots -allow-lowercase -allow-multidot -quiet -J -r -V "config-2" $TargetPath
         if ($LastExitCode) {
             throw
         }
@@ -34,26 +33,25 @@ function Main {
     Assert-PathExists $UserdataPath
     Assert-PathExists $KernelPath
 
-    Write-Host "Generating SSH keys."
-    & 'ssh-keygen.exe' -t rsa -f "$JobPath\$InstanceName-id-rsa" -q -N "''" -C "debian"
-    if ($LastExitCode -ne 0) {
-        throw
-    }
+    #Write-Host "Generating SSH keys."
+    #& 'ssh-keygen.exe' -t rsa -f "$JobPath\$InstanceName-id-rsa" -q -N "''" -C "debian"
+    #if ($LastExitCode -ne 0) {
+    #    throw
+    #}
 
     Write-Host "Creating Configdrive"
     $configDrive = [ConfigDrive]::new("configdrive")
     $configDrive.GetProperties("")
     $configDrive.ChangeProperty("hostname", "pipeline")
-    $configDrive.ChangeSSHKey("$JobPath\$InstanceName-id-rsa.pub")
-    $configDrive.ChangeUserData("$UserdataPath")
+    #$configDrive.ChangeSSHKey("$JobPath\$InstanceName-id-rsa.pub")
+    $configDrive.ChangeSSHKey($IdRSA)
+    $configDrive.ChangeUserData("$scriptPath\install_kernel.sh")
     $configDrive.SaveToNewConfigDrive("$ScriptPath/ConfigDrive-tmp")
 
+
+    Copy-Item -Recurse $KernelPath "$ScriptPath/ConfigDrive-tmp"
     Make-ISO $MkIsoFS "$scriptPath/ConfigDrive-tmp" "$JobPath\configdrive.iso"
     Write-Host "Finished Creating Configdrive"
-
-    Write-Host "Creating Kernel.iso"
-    Make-ISO $MkIsoFS $KernelPath "$JobPath\kernel.iso" 
-    Write-Host "Finished Creating Kernel.iso"
 
     Remove-Item -Force -Recurse -Path "$scriptPath/ConfigDrive-tmp"
 }

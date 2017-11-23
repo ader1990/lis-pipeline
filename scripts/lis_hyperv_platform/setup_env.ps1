@@ -1,12 +1,10 @@
 param (
     [String] $JobPath = "C:\path\to\job",
     [String] $VHDPath = "C:\path\to\example.vhdx",
-    [String] $UserdataPath = "C:\path\to\userdata.sh",
     [String] $KernelPath = "",
     [String] $InstanceName = "Instance1",
-    [String] $MkIsoFS = "C:\path\to\mkisofs.exe",
+    [String] $IdRSA = "Instance1"
 )
-
 
 $scriptPath = Split-Path -Parent $MyInvocation.MyCommand.Definition
 
@@ -16,19 +14,19 @@ $scriptPath1 = (Get-Item $scriptPath).parent.FullName
 
 function Main {
     Assert-PathExists $JobPath
+    Assert-PathExists $VHDPath
     
     $backend = [HypervBackend]::new(@("localhost"))
     $instance = [HypervInstance]::new($backend, $InstanceName, $VHDPath)
 
     Write-Host "Starting Setup-Metadata script."
-    & "$scriptPath/setup_metadata.ps1" $JobPath $UserdataPath $KernelURL $MkIsoFS
+    & "$scriptPath/setup_metadata.ps1" $JobPath $KernelPath $IdRSA
     if ($LastExitCode -ne 0) {
         throw $Error[0]
     }
 
     $instance.CreateInstance()
     $instance.AttachVMDvdDrive("$JobPath/configdrive.iso")
-    $instance.AttachVMDVDDrive("$JobPath/kernel.iso")
     $instance.StartInstance()
 }
 
