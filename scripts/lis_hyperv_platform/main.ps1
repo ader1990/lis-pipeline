@@ -1,5 +1,7 @@
 param(
     [String] $SharedStoragePath = "\\shared\storage\path",
+    [String] $ShareUser = "user",
+    [String] $SharePassword = "pass",
     [String] $JobId = "64",
     [String] $KernelPath = "kernel_url",
     [String] $InstanceName = "Instance1",
@@ -58,7 +60,7 @@ function Get-VHD {
 function Main {
     Write-Host "Starting the Main script"
 
-    Mount-Share $SharedStoragePath "J:"
+    Mount-Share $SharedStoragePath "J:" $Shareuser $SharePassword
     $KernelPath = "J:\$KernelPath"
     Assert-PathExists $KernelPath
 
@@ -75,6 +77,10 @@ function Main {
     }
 
     $ip = Get-IP $InstanceName $VMCheckTimeout
+    
+    Start-sleep 10
+    
+    .\lisa_run.ps1 -WorkDir "." -VMName $InstanceName -KeyPath "$WORKING_DIRECTORY\$JobId\$InstanceName-id-rsa" -XmlTest "KvpTests.xml"
 }
 
 Main

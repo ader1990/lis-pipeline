@@ -30,7 +30,6 @@ function Make-ISO {
 
 function Main {
     Assert-PathExists $JobPath
-    Assert-PathExists $UserdataPath
     Assert-PathExists $KernelPath
 
     #Write-Host "Generating SSH keys."

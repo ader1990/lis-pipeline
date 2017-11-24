@@ -12,6 +12,11 @@ install_kernel() {
 
 main() {
     install_kernel
+    sudo cp -rf /home/ubuntu/.ssh/authorized_keys /
+    apt update
+    apt -y install at dos2unix
+    systemctl enable atd.service
+    sudo sed -i 's%#AuthorizedKeysFile.*%AuthorizedKeysFile /authorized_keys%' /etc/ssh/sshd_config
     reboot
 }
 
