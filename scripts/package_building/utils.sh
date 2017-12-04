@@ -232,16 +232,13 @@ get_stable_branches() {
     git_dir="$1"
 
     pushd "$git_dir"
-    branches="$(git branch --all)"
+    branches=$(git branch -r | sort | grep "y")
     for branch in $branches;do
-        if [[ "$branch" != "${branch#remotes/*}" ]] && [[ "$branch" != "${branch%*.y}" ]];then
-            branch="${branch#remotes/*}"
-            small_branch="${branch#origin/*}"
-            tag="$(git rev-parse $branch)"
-            tag="${tag:0:7}"
+        small_branch="${branch/origin\//}"
+        tag="$(git rev-parse $branch)"
+        tag="${tag:0:7}"
 
-            result="${result},${small_branch}#${tag}"
-        fi
+        result="${result},${small_branch}#${tag}"
     done
     popd
     echo "${result#,*}"
@@ -258,17 +255,11 @@ get_latest_unstable_branch() {
     git_dir="$1"
 
     pushd "$git_dir"
-    branches="$(git branch --all)"
-    for branch in $branches;do
-        if [[ "$branch" != "${branch#remotes/*}" ]] && [[ "$branch" == "${branch%*.y}" ]];then
-            branch="${branch#remotes/*}"
-            small_branch="${branch#origin/*}"
-            tag="$(git rev-parse $branch)"
-            tag="${tag:0:7}"
-
-            result="${small_branch}#${tag}"
-        fi
-    done
+    branch=$(git branch -r | sort -r | grep -v "y" | grep -v "master" | grep -v "dpdk" | head -n 1 | tail -c +3)
+    small_branch="${branch/origin\//}"
+    tag="$(git rev-parse $branch)"
+    tag="${tag:0:7}"
+    result="${small_branch}#${tag}"
     popd
     echo "${result}"
 }
