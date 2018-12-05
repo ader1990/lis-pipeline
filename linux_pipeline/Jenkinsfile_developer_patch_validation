@@ -94,12 +94,12 @@ properties ([
                     STORAGE
                     NETWORK""",
             name: 'AZURE_PERF_TESTS',
-            description: 'What Azure Performance tests to run. You can customize the test cases from the options below. STORAGE TBD.'],
+            description: 'What Azure Performance tests to run. You can customize the test cases from the options below.'],
         [$class: 'ChoiceParameterDefinition',
             choices: """4k
                     1024k""",
             name: 'AZURE_PERF_STORAGE_IO_SIZE',
-            description: 'Azure Performance STORAGE IO SIZE. TBD.'],
+            description: 'Azure Performance STORAGE IO SIZE.'],
         [$class: 'ChoiceParameterDefinition',
             choices: """ALL
                     randread
@@ -107,7 +107,7 @@ properties ([
                     read
                     write""",
             name: 'AZURE_PERF_STORAGE_IO_MODE',
-            description: 'Azure Performance STORAGE IO MODE.  TBD.'],
+            description: 'Azure Performance STORAGE IO MODE.'],
         [$class: 'ChoiceParameterDefinition',
             choices: """IPERF3_1CONNECTION
                     NTTTCP_TCP
@@ -356,12 +356,14 @@ def stashArtifacts() {
     cleanWs()
 }
 
-def getPerfTestInfo(perfType, netType, netIperfType, netIperfBufferLength) {
+def getPerfTestInfo(perfType, netType, netIperfType, netIperfBufferLength, storIoSize, storIoMode) {
     def perfTestInfo = [ "test_case_name": 'NONE', "test_case_params": '']
     perfType = perfType.trim()
     netType = netType.trim()
     netIperfType = netIperfType.trim()
     netIperfBufferLength = netIperfBufferLength.trim()
+    storIoSize = storIoSize.trim()
+    storIoMode = storIoMode.trim()
 
     // LISAV2 TEST CASE INFORMATION
     def netIperfUSriovTestCase = "PERF-NETWORK-TCP-SINGLE-CONNECTION-THROUGHPUT-SRIOV"
@@ -371,9 +373,32 @@ def getPerfTestInfo(perfType, netType, netIperfType, netIperfBufferLength) {
     def netIperfSyntBufferLengthParam = "PERF-NETWORK-TCP-SINGLE-CONNECTION-THROUGHPUT-SYNTHETIC-BUFFER-LENGTHS"
     def netIperfBufferLengthParam
 
+    def storIo4KTestCase = "PERF-STORAGE-4K-IO"
+    def storIo1024KTestCase = "PERF-STORAGE-1024K-IO"
+    def storIoModeAll = "randread randwrite read write"
+    def storIo4kParam = "PERF-STORAGE-4K-IO-MODES"
+    def storIo1024kParam = "PERF-STORAGE-104K-IO-MODES"
+    def storIoParam
+
     switch (perfType) {
         case "STORAGE":
-            echo "STORAGE perf tests are not implemented."
+            perfTestInfo["test_case_params"] = storIoMode
+            switch (storIoSize) {
+                case "4k":
+                    perfTestInfo["test_case_name"] = storIo4KTestCase
+                    storIoParam = storIo4kParam
+                    break;
+                case "1024k":
+                    perfTestInfo["test_case_name"] = storIo1024KTestCase
+                    storIoParam = storIo1024kParam
+                    break;
+                default:
+                    echo "STORAGE perf tests are not implemented."
+                    break;
+            if (storIoMode.equals("ALL")) {
+                perfTestInfo["test_case_params"] = storIoModeAll
+            }
+            perfTestInfo["test_case_params"] = storIoParam + "='" + perfTestInfo["test_case_params"] + "'"
             break
         case "NETWORK":
             switch (netType) {
@@ -519,7 +544,7 @@ if (params.RUN_HYPERV_BVT_TESTS) {
 }
 
 if (params.AZURE_PERF_TESTS && !params.AZURE_PERF_TESTS.equals('NONE')) {
-    def perfTestInfo = getPerfTestInfo(params.AZURE_PERF_TESTS, params.AZURE_PERF_NETWORK_TEST_TYPE, params.NET_IPERF3_TYPE, params.NET_IPERF3_BUFFER_LENGTH)
+    def perfTestInfo = getPerfTestInfo(params.AZURE_PERF_TESTS, params.AZURE_PERF_NETWORK_TEST_TYPE, params.NET_IPERF3_TYPE, params.NET_IPERF3_BUFFER_LENGTH, params.AZURE_PERF_STORAGE_IO_SIZE, params.AZURE_PERF_STORAGE_IO_MODE)
     if (!perfTestInfo["test_case_name"].equals("NONE")) {
             runs['azure_perf'] = {
             node ("azure") {
